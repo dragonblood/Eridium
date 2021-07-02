@@ -23,7 +23,6 @@ load_dotenv()
 
 def decode_audio(inFile, outFile):
     """Converts a video file to a wav file.
-
     Args:
         inFile (String): i.e. my/great/movie.mp4
         outFile (String): i.e. my/great/movie.wav
@@ -36,18 +35,16 @@ def decode_audio(inFile, outFile):
 
 def get_transcripts_json(gcsPath, langCode, phraseHints=[], speakerCount=1, enhancedModel=None):
     """Transcribes audio files.
-
     Args:
         gcsPath (String): path to file in cloud storage (i.e. "gs://audio/clip.mp4")
         langCode (String): language code (i.e. "en-US", see https://cloud.google.com/speech-to-text/docs/languages)
         phraseHints (String[]): list of words that are unusual but likely to appear in the audio file.
         speakerCount (int, optional): Number of speakers in the audio. Only works on English. Defaults to None.
         enhancedModel (String, optional): Option to use an enhanced speech model, i.e. "video"
-
     Returns:
         list | Operation.error
     """
-    print(gcsPath, langCode, phraseHints, speakerCount, enhancedModel)
+
     # Helper function for simplifying Google speech client response
     def _jsonify(result):
         json = []
@@ -64,7 +61,6 @@ def get_transcripts_json(gcsPath, langCode, phraseHints=[], speakerCount=1, enha
                     "speaker_tag": word.speaker_tag
                 })
             json.append(data)
-        print(json)
         return json
 
     client = speech.SpeechClient()  
@@ -95,14 +91,13 @@ def get_transcripts_json(gcsPath, langCode, phraseHints=[], speakerCount=1, enha
 
     )
     res = client.long_running_recognize(config=config, audio=audio).result()
-    print(res)
 
     return _jsonify(res)
+
 
 def parse_sentence_with_speaker(json, lang):
     """Takes json from get_transcripts_json and breaks it into sentences
     spoken by a single person. Sentences deliniated by a >= 1 second pause/
-
     Args:
         json (string[]): [{"transcript": "lalala", "words": [{"word": "la", "start_time": 20, "end_time": 21, "speaker_tag: 2}]}]
         lang (string): language code, i.e. "en"
@@ -158,12 +153,10 @@ def parse_sentence_with_speaker(json, lang):
 def translate_text(input, targetLang, sourceLang=None):
     """Translates from sourceLang to targetLang. If sourceLang is empty,
     it will be auto-detected.
-
     Args:
         sentence (String): Sentence to translate
         targetLang (String): i.e. "en"
         sourceLang (String, optional): i.e. "es" Defaults to None.
-
     Returns:
         String: translated text
     """
@@ -177,7 +170,6 @@ def translate_text(input, targetLang, sourceLang=None):
 
 def speak(text, languageCode, voiceName=None, speakingRate=1):
     """Converts text to audio
-
     Args:
         text (String): Text to be spoken
         languageCode (String): Language (i.e. "en")
@@ -224,13 +216,11 @@ def speak(text, languageCode, voiceName=None, speakingRate=1):
 def speakUnderDuration(text, languageCode, durationSecs, voiceName=None):
     """Speak text within a certain time limit.
     If audio already fits within duratinSecs, no changes will be made.
-
     Args:
         text (String): Text to be spoken
         languageCode (String): language code, i.e. "en"
         durationSecs (int): Time limit in seconds
         voiceName (String, optional): See https://cloud.google.com/text-to-speech/docs/voices
-
     Returns:
         bytes : Audio in wav format
     """
@@ -259,28 +249,20 @@ def speakUnderDuration(text, languageCode, durationSecs, voiceName=None):
 def toSrt(transcripts, charsPerLine=60):
     """Converts transcripts to SRT an SRT file. Only intended to work
     with English.
-
     Args:
         transcripts ({}): Transcripts returned from Speech API
         charsPerLine (int): max number of chars to write per line
-
     Returns:
         String srt data
     """
 
     """
     SRT files have this format:
-
     [Section of subtitles number]
-
     [Time the subtitle is displayed begins] –> [Time the subtitle is displayed ends]
-
     [Subtitle]
-
     Timestamps are in the format:
-
     [hours]: [minutes]: [seconds], [milliseconds]
-
     Note: about 60 characters comfortably fit on one line
     for resolution 1920x1080 with font size 40 pt.
     """
@@ -318,8 +300,8 @@ def toSrt(transcripts, charsPerLine=60):
 
 
 def stitch_audio(sentences, audioDir, movieFile, outFile, srtPath=None, overlayGain=-30):
-    """Combines sentences, audio clips, and video file into the ultimate dubbed video
 
+    """Combines sentences, audio clips, and video file into the ultimate dubbed video
     Args:
         sentences (list): Output of parse_sentence_with_speaker
         audioDir (String): Directory containing generated audio files to stitch together
@@ -328,7 +310,6 @@ def stitch_audio(sentences, audioDir, movieFile, outFile, srtPath=None, overlayG
         srtPath (String, optional): Path to transcript/srt file, if desired.
         overlayGain (int, optional): How quiet to make source audio when overlaying dubs. 
             Defaults to -30.
-
     Returns:
        void : Writes movie file to outFile path
     """
@@ -369,13 +350,13 @@ def stitch_audio(sentences, audioDir, movieFile, outFile, srtPath=None, overlayG
     clip.write_videofile(outFile, codec='libx264', audio_codec='aac')
     audioFile.close()
 
+    
 def dub(
         videoFile, outputDir, srcLang, targetLangs=[],
         storageBucket=None, phraseHints=[], dubSrc=False,
         speakerCount=1, voices={}, srt=False,
         newDir=False, genAudio=False, noTranslate=False):
     """Translate and dub a movie.
-
     Args:
         videoFile (String): File to dub
         outputDir (String): Directory to write output files
@@ -390,7 +371,6 @@ def dub(
         newDir (bool, optional): Whether to start dubbing from scratch or use files in outputDir. Defaults to False.
         genAudio (bool, optional): Generate new audio, even if it's already been generated. Defaults to False.
         noTranslate (bool, optional): Don't translate. Defaults to False.
-
     Raises:
         void : Writes dubbed video and intermediate files to outputDir
     """
@@ -478,7 +458,9 @@ def dub(
 
     for lang in targetLangs:
         languageDir = os.path.join(audioDir, lang)
-        if genAudio and os.path.exists(languageDir):
+        if os.path.exists(languageDir):
+            if not genAudio:
+                continue
             shutil.rmtree(languageDir)
         os.mkdir(languageDir)
         print(f"Synthesizing audio for {lang}")
