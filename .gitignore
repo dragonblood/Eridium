@@ -1,2 +1,5 @@
 Eridium/__pycache__/
+Eridium/backend/.env
+Eridium/backend/erridium.json
+future/
 db.sqlite3
