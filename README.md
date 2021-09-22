@@ -7,8 +7,8 @@ Add stuff here
 ## Screenshots and samples:
 | Source | target |
 | ------ | ------ |
-| [english](https://github.com/dragonblood/Eridium/blob/master/Eridium/backend/graph.mp4) | [spanish](https://github.com/dragonblood/Eridium/blob/master/Eridium/backend/output/dubbedVideos/es.mp4) |
-||[russian](https://github.com/dragonblood/Eridium/blob/master/Eridium/backend/output/dubbedVideos/ru.mp4) |
+| [english](https://github.com/dragonblood/Eridium/blob/master/Eridium/frontend/assets/videos/graph.mp4) | [spanish](https://github.com/dragonblood/Eridium/blob/master/Eridium/frontend/assets/videos/es.mp4) |
+||[russian](https://github.com/dragonblood/Eridium/blob/master/Eridium/frontend/assets/videos/ru.mp4) |
 
 ## Setup:
 python dubber.py graph.mp4 output "en" --targetLangs "es"
