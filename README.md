@@ -11,7 +11,7 @@ Add stuff here
 ||[russian](https://github.com/dragonblood/Eridium/blob/master/Eridium/frontend/assets/videos/ru.mp4) |
 
 ## Setup:
-python dubber.py graph.mp4 output "en" --targetLangs "es"
+python dubber.py graph.mp4 output "en" ["es"] bucket-name
 
 ## Todo:
  - [ ] Frontend where user can upload 
