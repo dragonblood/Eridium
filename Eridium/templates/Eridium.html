@@ -1,0 +1,190 @@
+{% extends 'layouts/default/page.html' %} {% load bootstrap4 %} {% load i18n %} {% block content %} {% load static %}
+
+<div id="ScrollPane">
+
+    <div class="scr pane prt an" style=" background-image: url({% static 'img/background/image1.png' %});   background-repeat: no-repeat; background-size: cover; background-color:#da4236;" data-id="scr05">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- <h2 class="red">Project Under Work</h2> -->
+                    <h1 class="intro-header">
+                        AI<br>AUTO<br>DUBBING
+                    </h1>
+                </div>
+                <div class="col-md-6">
+                    <div class="intro-links">
+                        <a href="http://github.com/Dragonblood"><img class="github" src="{% static 'img/icons8-github.svg' %}"></a>
+                    </div>
+                    <p class="intro-info">
+                        Automated AI-assisted dubbing system. A user will upload a short video in a foreign language, after receiving a target video audio is parsed and transcribed, the transcription is then translated using google translation API and converted to speech using Text-to-Speech API.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="scrollup">
+            Scroll Down <i class="fa fa-arrow-down" aria-hidden="true"></i>
+        </div>
+
+    </div>
+
+    <div class="scr prt tab">
+        <div class="left scrzone" style="background:#a15bf0;">
+            <span><b>English</b></span>
+
+            <video width="320" height="240" controls>
+                <source src="{% static 'videos/graph.mp4' %}" type="video/mp4">
+                  Your browser does not support the video tag.
+            </video> 
+
+        </div>
+
+        <div class="right spane">
+            <div class="pane an" style="background:#ffca47;" data-id="Vertical04">
+                <b>
+                    Hindi<br>
+                    <span class="native-word">हिन्दी</span>
+                </b>
+                <video width="320" height="240" controls>
+                    <source src="{% static 'videos/hi.mp4' %}" type="video/mp4">
+                      Your browser does not support the video tag.
+                </video> 
+                
+            </div>
+            <div class="pane an" style="background:#20d288;" data-id="Vertical05">
+                <b>
+                    French<br>
+                    <span class="native-word">français</span>
+                    <video width="320" height="240" controls>
+                        <source src="{% static 'videos/fr.mp4' %}" type="video/mp4">
+                          Your browser does not support the video tag.
+                    </video> 
+
+                </b>
+            </div>
+            <div class="pane an" style="background:#ff6769;" data-id="Vertical06">
+                <b>
+                    Japanese<br>
+                    <span class="native-word">日本</span>
+                    <video width="320" height="240" controls>
+                        <source src="{% static 'videos/ja.mp4' %}" type="video/mp4">
+                          Your browser does not support the video tag.
+                    </video> 
+
+                </b>
+            </div>
+        </div>
+    </div>
+
+    <div class="scr pane prt an" data-id="Conclusion">
+        <!-- <div class="ct"><span><b>THE END</b><br>
+        Works with Fox, Chrome, Edge, Opera, ...</span></div> -->
+        <video autoplay muted loop id="background-video">
+            <source src="{% static 'img/background/back3.mp4' %}" type="video/mp4">
+        </video>
+
+        <div class="container-fluid">
+            <h2 style="text-align: center;">Try It Out</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <!-- <div class="card container mt-3 shadow-lg p-3 mb-5 bg-white rounded">
+                        <h2 class="text-dark">
+                            <br /> File Upload
+                            <hr />
+                        </h2>
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <p class="text-dark">Uploaded File:</p>
+                            <div class="custom-file mb-3 text-dark">
+                                <input type="file" class="text-dark custom-file-input" id="customFile" name="myFile" accept="image/*" onchange="loadFile(event)" />
+                                <div class="form-group text-dark">
+                                </div>
+                                <label class="custom-file-label text-dark" for="customFile">Choose file</label>
+                            </div>
+                    
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">Submit
+                                </button><br /><br /> {% if label %}
+                                <h2>
+                                    {{ label }}
+                                </h2>
+                                {% endif %}
+                                <img id="output" height="30%" /> {% if context %}
+                                <img src="{% static context %}" /><br />{% endif %}
+                            </div>
+                        </form> -->
+                    
+                        <!-- <video width="320" height="240" controls>
+                            <source src="{% static 'videos/mov_bbb.mp4' %}" type="video/mp4">
+                          Your browser does not support the video tag.
+                          </video>  -->
+
+                    <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src="{% static 'img/forest-care.svg' %}" alt="Card image cap">
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <h5 class="card-title">Source</h5>
+                                
+                                <input class="form-control-sm" type="file" name="video" accept="video/*">
+
+                                <div class="form-group">
+                                    <label class="form-control-sm" for="exampleFormControlSelect1">Source language</label>
+                                    <select name = "source_lang" class="form-control form-control-sm" id="exampleFormControlSelect1">
+                                    <option>Egnlish</option>
+                                    <!-- <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option> -->
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-control-sm" for="exampleFormControlSelect1">No. of speakers</label>
+                                    <select name = "source_speakers" class="form-control form-control-sm" id="exampleFormControlSelect1">
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-control-sm" for="exampleFormControlTextarea1">Word Hints</label>
+                                    <textarea name = "hints" class="form-control" id="exampleFormControlTextarea1" placeholder="Few commons words from the video" rows="3"></textarea>
+                                    </div>
+
+                                <h5 class="card-title">Target</h5>
+
+                                <div class="form-group">
+                                    <label class="form-control-sm" for="exampleFormControlSelect1">Example select</label>
+                                    <select name = "target_lang" class="form-control form-control-sm" id="exampleFormControlSelect1">
+                                        <option>hi</option>
+                                        <option>fr</option>
+                                        <option>ru</option>
+                                        <option>es</option>
+                                        <option>ja</option>
+                                    </select>
+                                </div>
+
+                                    <!-- <input type='text' style='display:none;' value='%s' name='csrfmiddlewaretoken'/> -->
+                                    
+
+                                <button class="btn btn-outline-success" type="submit">Upload</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- <video width="320" height="240" controls>
+                        <source src="{% static 'videos/mov_bbb.mp4' %}" type="video/mp4">
+                            Your browser does not support the video tag.
+                    </video> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Helper"></div>
+
+{% endblock %}
