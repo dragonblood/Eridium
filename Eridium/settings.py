@@ -123,7 +123,6 @@ MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     os.path.join(CONTENT_DIR, 'assets'),
-    
 ]
 
 LOCALE_PATHS = [
