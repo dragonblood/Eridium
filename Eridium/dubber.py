@@ -6,34 +6,18 @@ from google.cloud import storage
 from moviepy.editor import VideoFileClip, AudioFileClip, CompositeVideoClip
 from moviepy.video.tools.subtitles import SubtitlesClip, TextClip
 import os
-import shutil
 import ffmpeg
-import time
 import json
-import sys
 import tempfile
-import uuid
 from dotenv import load_dotenv
-import fire
 import html
 
 # Load config in .env file
 load_dotenv()
 
 
-def decode_audio(inFile, outFile):
-    """Converts a video file to a wav file.
-    Args:
-        inFile (String): i.e. my/great/movie.mp4
-        outFile (String): i.e. my/great/movie.wav
-    """
-    if not outFile[-4:] != "wav":
-        outFile += ".wav"
-    AudioSegment.from_file(inFile).set_channels(
-        1).export(outFile, format="wav")
-
-
-def get_transcripts_json(gcsPath, langCode, phraseHints=[], speakerCount=1, enhancedModel=None):
+def get_transcripts_json(gcsPath, langCode, phraseHints=[], speakerCount = 1, enhancedModel=None):
+    print(speakerCount)
     """Transcribes audio files.
     Args:
         gcsPath (String): path to file in cloud storage (i.e. "gs://audio/clip.mp4")
@@ -65,6 +49,7 @@ def get_transcripts_json(gcsPath, langCode, phraseHints=[], speakerCount=1, enha
 
     client = speech.SpeechClient()  
     audio = speech.RecognitionAudio(uri=gcsPath)
+    speakerCount = int(speakerCount)
 
     diarize = speakerCount if speakerCount > 1 else False
     print(f"Diarizing: {diarize}")
@@ -93,7 +78,6 @@ def get_transcripts_json(gcsPath, langCode, phraseHints=[], speakerCount=1, enha
     res = client.long_running_recognize(config=config, audio=audio).result()
 
     return _jsonify(res)
-
 
 def parse_sentence_with_speaker(json, lang):
     """Takes json from get_transcripts_json and breaks it into sentences
@@ -149,7 +133,6 @@ def parse_sentence_with_speaker(json, lang):
 
     return sentences
 
-
 def translate_text(input, targetLang, sourceLang=None):
     """Translates from sourceLang to targetLang. If sourceLang is empty,
     it will be auto-detected.
@@ -166,7 +149,6 @@ def translate_text(input, targetLang, sourceLang=None):
         input, target_language=targetLang, source_language=sourceLang)
 
     return html.unescape(result['translatedText'])
-
 
 def speak(text, languageCode, voiceName=None, speakingRate=1):
     """Converts text to audio
@@ -212,7 +194,6 @@ def speak(text, languageCode, voiceName=None, speakingRate=1):
 
     return response.audio_content
 
-
 def speakUnderDuration(text, languageCode, durationSecs, voiceName=None):
     """Speak text within a certain time limit.
     If audio already fits within duratinSecs, no changes will be made.
@@ -244,7 +225,6 @@ def speakUnderDuration(text, languageCode, durationSecs, voiceName=None):
     if ratio > 4:
         ratio = 4
     return speak(text, languageCode, voiceName=voiceName, speakingRate=ratio)
-
 
 def toSrt(transcripts, charsPerLine=60):
     """Converts transcripts to SRT an SRT file. Only intended to work
@@ -298,8 +278,7 @@ def toSrt(transcripts, charsPerLine=60):
 
     return '\n\n'.join(srt)
 
-
-def stitch_audio(sentences, audioDir, movieFile, outFile, srtPath=None, overlayGain=-30):
+def stitch_audio(sentences, audioDir, filename, outFile, storage_client, srtPath=None, overlayGain=-30, bucket_name=None):
 
     """Combines sentences, audio clips, and video file into the ultimate dubbed video
     Args:
@@ -314,31 +293,52 @@ def stitch_audio(sentences, audioDir, movieFile, outFile, srtPath=None, overlayG
        void : Writes movie file to outFile path
     """
 
-    # Files in the audioDir should be labeled 0.wav, 1.wav, etc.
-    audioFiles = os.listdir(audioDir)
-    audioFiles.sort(key=lambda x: int(x.split('.')[0]))
+    # # Files in the audioDir should be labeled 0.wav, 1.wav, etc.
+    audioFiles = storage_client.list_blobs(bucket_name, prefix=audioDir)
+    audioFiles = sorted([int(f.name.split('/')[-1].split('.')[0]) for f in audioFiles])
 
     # Grab the computer-generated audio file
-    segments = [AudioSegment.from_mp3(
-        os.path.join(audioDir, x)) for x in audioFiles]
-    # Also, grab the original audio
-    dubbed = AudioSegment.from_file(movieFile)
+    bucket = storage_client.bucket(bucket_name)
+    # os.mkdir('temp/audio')
+
+    segments = []
+    for x in audioFiles:
+        x = str(x)
+        blob = bucket.blob(f"{audioDir}{x}.mp3")
+        blob.download_to_filename("temp/audio/"+x+".mp3")
+        # blob = bucket.get_blob(f"{audioDir}{x}.mp3")
+        # file = blob.download_as_bytes()
+        # file = io.BytesIO(file)
+        # print(file)
+        # segments = AudioSegment.from_mp3()#.export(f"{audioDir}/{x}.wav", format="wav")
+
+        segments.append(AudioSegment.from_mp3("temp/audio/"+x+".mp3"))
+        print(segments)
+
+    # segments = [bucket.blob(os.path.join(audioDir, str(x)+".mp3")).download_to_file)) for x in audioFiles]
+
+    # # Also, grab the original audio
+    # blob = bucket.blob("videos/"+filename)
+    # blob.download_to_filename(filename)
+    # # file = io.BytesIO(file)
+    dubbed = AudioSegment.from_file('temp/'+filename)
 
     # Place each computer-generated audio at the correct timestamp
     for sentence, segment in zip(sentences, segments):
         dubbed = dubbed.overlay(
             segment, position=sentence['start_time'] * 1000, gain_during_overlay=overlayGain)
+
     # Write the final audio to a temporary output file
     audioFile = tempfile.NamedTemporaryFile()
     dubbed.export(audioFile)
     audioFile.flush()
 
     # Add the new audio to the video and save it
-    clip = VideoFileClip(movieFile)
-    audio = AudioFileClip(audioFile.name)
-    clip = clip.set_audio(audio)
+    clip = ffmpeg.input('temp/output/'+filename)
+    audio = ffmpeg.input(audioFile.name)
 
     # Add transcripts, if supplied
+    srtPath = False
     if srtPath:
         width, height = clip.size[0] * 0.75, clip.size[1] * 0.20
         def generator(txt): return TextClip(txt, font='Georgia-Regular',
@@ -346,15 +346,19 @@ def stitch_audio(sentences, audioDir, movieFile, outFile, srtPath=None, overlayG
         subtitles = SubtitlesClip(
             srtPath, generator).set_pos(("center", "bottom"))
         clip = CompositeVideoClip([clip, subtitles])
+    outfile = 'temp'
 
-    clip.write_videofile(outFile, codec='libx264', audio_codec='aac')
-    audioFile.close()
+    # clip.write_videofile(outfile, codec='libx264', audio_codec='aac')
+    try:
+        out = ffmpeg.output(clip, audio, "content/static/videos/"+"dubbed"+filename, vcodec='copy', acodec='aac', strict='experimental').run(capture_stdout=True, capture_stderr=True)
+    except ffmpeg.Error as e:
+        print('stdout:', e.stdout.decode('utf8'))
+        print('stderr:', e.stderr.decode('utf8'))
+        raise e
 
-    
+
 def dub(
-        videoFile, baseName, outputDir, srcLang, targetLangs=[],
-        storageBucket=None, phraseHints=[], dubSrc=False,
-        speakerCount=1, voices={}, srt=False,
+        videoFile, basename, storageBucket, srcLang, targetLangs=[], phraseHints=[], dubSrc=False, speakerCount=1, voices={}, srt=False,
         newDir=False, genAudio=False, noTranslate=False):
     """Translate and dub a movie.
     Args:
@@ -374,112 +378,91 @@ def dub(
     Raises:
         void : Writes dubbed video and intermediate files to outputDir
     """
+
+    print(videoFile, basename, storageBucket, srcLang, targetLangs, phraseHints, dubSrc, speakerCount, voices, srt, newDir, genAudio, noTranslate)
+    path_video ="gs://"+storageBucket+"/videos/"+videoFile
+    path_audio ="gs://"+storageBucket+"/audios/"+basename+".wav"
+    output = "output"
+
     storage_client = storage.Client()
-    outputFiles = storage_client.list_blobs(storageBucket)
-
+    bucket = storage_client.bucket(storageBucket)
+    #outputFiles = storage_client.list_blobs(storageBucket)
     
-    #check if such file aleady exists, if no then decode audio
-    
-    if not f"{baseName}.wav" in outputFiles:
-        print("Extracting audio from video")
-        fn = "gs://"+storageBucket+"/"+outputDir+"/"+baseName + ".wav" #os.path.join(outputDir, baseName + ".wav")
-        #decode audio and save to fn
-        decode_audio(videoFile, fn)
-        print(f"Wrote {fn}")
 
+    # if not f"transcript.json" in outputFiles:
+    #     storageBucket = storageBucket if storageBucket else os.environ['STORAGE_BUCKET']
+    #     if not storageBucket:
+    #         raise Exception(
+    #             "Specify variable STORAGE_BUCKET in .env or as an arg")
 
-    #
-    if not f"transcript.json" in outputFiles:
-        storageBucket = storageBucket if storageBucket else os.environ['STORAGE_BUCKET']
-        if not storageBucket:
-            raise Exception(
-                "Specify variable STORAGE_BUCKET in .env or as an arg")
+    #     print("Transcribing audio")
+    #     print("Uploading to the cloud...")
+    #     bucket = storage_client.bucket(storageBucket)
 
-        print("Transcribing audio")
-        print("Uploading to the cloud...")
-        bucket = storage_client.bucket(storageBucket)
-
-        tmpFile = os.path.join("tmp", str(uuid.uuid4()) + ".wav")
-        blob = bucket.blob(tmpFile)
+    #     tmpFile = os.path.join("tmp", str(uuid.uuid4()) + ".wav")
+    #     blob = bucket.blob(tmpFile)
         # Temporary upload audio file to the cloud
-        blob.upload_from_filename(os.path.join(
-            outputDir, baseName + ".wav"), content_type="audio/wav")
+        # blob.upload_from_filename(os.path.join(
+        #     outputDir, baseName + ".wav"), content_type="audio/wav")
 
-        print("Transcribing...")
-        transcripts = get_transcripts_json(os.path.join(
-            "gs://", storageBucket, tmpFile), srcLang,
-            phraseHints=phraseHints,
-            speakerCount=speakerCount)
-        json.dump(transcripts, open(os.path.join(
-            outputDir, "transcript.json"), "w"))
+    print("Transcribing...")
+    transcripts = get_transcripts_json(path_audio, srcLang, phraseHints=phraseHints, speakerCount=speakerCount)
 
-        sentences = parse_sentence_with_speaker(transcripts, srcLang)
-        fn = os.path.join(outputDir, baseName + ".json")
-        with open(fn, "w") as f:
-            json.dump(sentences, f)
-        print(f"Wrote {fn}")
-        print("Deleting cloud file...")
-        blob.delete()
+    # blob = bucket.blob("audios/")
+    # json.dump(transcripts, open(os.path.join(outputDir, "transcript.json"), "w"))
 
-    srtPath = os.path.join(outputDir, "subtitles.srt") if srt else None
-    if srt:
-        transcripts = json.load(
-            open(os.path.join(outputDir, "transcript.json")))
-        subtitles = toSrt(transcripts)
-        with open(srtPath, "w") as f:
-            f.write(subtitles)
-        print(
-            f"Wrote srt subtitles to {os.path.join(outputDir, 'subtitles.srt')}")
+    sentences = parse_sentence_with_speaker(transcripts, srcLang)
+    subtitles = toSrt(transcripts)
 
-    sentences = json.load(open(os.path.join(outputDir, baseName + ".json")))
+    #store sentences as json in google cloud cloud
+    destination_blob_sentences = "output/"+basename+"_sentences.json"
+    blob_sentences = bucket.blob(destination_blob_sentences)
+    blob_sentences.upload_from_string(json.dumps(sentences))
+
+    #store subtitles as subtitles.srt
+    destination_blob_subtitles = "output/"+basename+"_subtitles.srt"
+    blob_subtitles = bucket.blob(destination_blob_subtitles)
+    blob_subtitles.upload_from_string(subtitles)
+
+
+    #translation to target languages
     sentence = sentences[0]
-
     if not noTranslate:
-        for lang in targetLangs:
-            print(f"Translating to {lang}")
-            for sentence in sentences:
-                sentence[lang] = translate_text(
-                    sentence[srcLang], lang, srcLang)
+        print(f"Translating to {targetLangs}")
+        for sentence in sentences:
+            sentence[targetLangs] = translate_text(
+                sentence[srcLang], targetLangs, srcLang)
 
-        # Write the translations to json
-        fn = os.path.join(outputDir, baseName + ".json")
-        with open(fn, "w") as f:
-            json.dump(sentences, f)
+        print(sentence, sentences)
 
-    audioDir = os.path.join(outputDir, "audioClips")
-    if not "audioClips" in outputFiles:
-        os.mkdir(audioDir)
+        destination_blob_sentences = "output/"+basename+"_sentencesNew.json"
+        blob_sentences = bucket.blob(destination_blob_subtitles)
+        blob_sentences.upload_from_string(json.dumps(sentences))
 
-    # whether or not to also dub the source language
-    if dubSrc:
-        targetLangs += [srcLang]
+    # audioDir = os.path.join(outputDir, "audioClips")
+    # if not "audioClips" in outputFiles:
+    #     os.mkdir(audioDir)
 
-    for lang in targetLangs:
-        languageDir = os.path.join(audioDir, lang)
-        if os.path.exists(languageDir):
-            if not genAudio:
-                continue
-            shutil.rmtree(languageDir)
-        os.mkdir(languageDir)
-        print(f"Synthesizing audio for {lang}")
-        for i, sentence in enumerate(sentences):
-            voiceName = voices[lang] if lang in voices else None
-            audio = speakUnderDuration(
-                sentence[lang], lang, sentence['end_time'] -
-                sentence['start_time'],
-                voiceName=voiceName)
-            with open(os.path.join(languageDir, f"{i}.mp3"), 'wb') as f:
-                f.write(audio)
+    # # whether or not to also dub the source language
+    # if dubSrc:
+    #     targetLangs += [srcLang]
 
-    dubbedDir = os.path.join(outputDir, "dubbedVideos")
+    #create "audioDir/"+targetLangs[0]
+    destination_blob_voices_base = "output/audioDir/"+targetLangs+"/"
 
-    if not "dubbedVideos" in outputFiles:
-        os.mkdir(dubbedDir)
+    print(f"Synthesizing audio for {targetLangs}")
 
-    for lang in targetLangs:
-        print(f"Dubbing audio for {lang}")
-        outFile = os.path.join(dubbedDir, lang + ".mp4")
-        stitch_audio(sentences, os.path.join(
-            audioDir, lang), videoFile, outFile, srtPath=srtPath)
+    for i, sentence in enumerate(sentences):
+        voiceName = voices[targetLangs] if targetLangs in voices else None
+        audio = speakUnderDuration(sentence[targetLangs], targetLangs, sentence['end_time'] - sentence['start_time'], voiceName=voiceName)
+        blob_voices = bucket.blob(destination_blob_voices_base+f"{i}.mp3")
+        blob_voices.upload_from_string(audio, content_type="audio/mp3")
 
-    print("Done")
+    # dubbedDir = os.path.join(outputDir, "dubbedVideos")
+
+    # if not "dubbedVideos" in outputFiles:
+    #     os.mkdir(dubbedDir)
+
+    print(f"Dubbing audio for {targetLangs}")
+
+    stitch_audio(sentences, destination_blob_voices_base, videoFile, output, storage_client, srtPath=destination_blob_subtitles, bucket_name=storageBucket)
