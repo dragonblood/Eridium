@@ -3,3 +3,6 @@ Eridium/backend/.env
 Eridium/backend/erridium.json
 future/
 db.sqlite3
+erridium.json
+frontendo/node_modules/
+temp/
