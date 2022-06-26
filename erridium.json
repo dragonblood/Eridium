@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "erridium",
+  "private_key_id": "92532a02ed43d859ab709cfa602bf96081a35b84",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDS8mMUjs1bX0eY\nP2NtYlzV4n8rE0Ho04Ci4nTrAsky/x9anyRQ7lkPWUJ8iEJxeDqubyvfgM09NzhR\nAUz2qU6Je1Ih/IIHm9U5DKDQoqKo7DByZOcfYOUI4ZndZdKbB7PkW5ikIlMg7+/9\nI2/fEDfjbfOxQ7EHGkekQAIbxsh2aOOVYSJHQScgAYB6W67cEKipo2GDsBupBSEX\n1mGw2Pv31+RayikxGyHHAtFIiT5/d849jwUBE5mq+WVZy253IRiTHeRuebsjoxHs\nmMF7GBRUnFhDWZg7vvOPt1ST+/RQ8bDlkIvlsDZfQQ3XWdOvgZS2JVhGyVVTY11M\ngkkFHn4RAgMBAAECggEAS4PT7lcUssIQGjOO/2h3/WVgyuXQ8W1NnoHdAwhzSFtG\nOSXBVWuN3E3C3FvXFVHKCAnqNc+hKWnsMit6Bs8jO1o3U81WKy0hDpQzuZyPCFPN\nIBZ5GqWQODay4ywBUdhXEMethAx5n8/lJMSb1smyiCsjUvD9naJNxUHYv2LQ/nn1\nPwPR9UfMyzzyY+qeH7wG5aZDKyGOOie1uxmexQO401uwC8Ck4V4MZb2IYrmfcg1n\nmEDP04OFCyzV4M+Z6Pwf+3T0tP26o/HHk3rOjNk7hTuAtvVHJOh9XAP2lYKYfJBN\n0HEQoER9So9R5bmQydu9dltWjhndDnNQbrPXbxYdBQKBgQD5D7dnqOBo/00dqMo1\nXssyzPXBUKAxtyqxXWzSAc46iXT1xvso2alyY6sJh4bX4mfF6iqSN4uliLz/8ym2\n/Jg1+dkOLkiE/YTnxfuJOniYYzkHXAIKUA4WCDv95/LdmT4htcUc90loMjGvdFjo\nsTuhdoBefousTJLP5MzOARQWewKBgQDY0tdGWmaGbEg2EjWQjYoAP4EFSAmaW5at\nBXsvZEqUfCP6UEeA50W2osBu6zR2Q7VIlrED3bExorN0Dyh3+henj1cDmbfa9pIj\nw7/t+uZA6pQrHIEHWvCeoOcQQOQspf50CoWCn5Anm6TJ9DvNjH2sQYBpVsEcsspS\nsykWuhX94wKBgQDhCxtsdcJ3/R9gClDT0piGiX4Rs9lbsqbH5qPaSjle2S8umSH+\nMlaSfo5gKO5liTS9Ny5KOhhbdWdZWg06Q5kBRIWk85shV7XMey8iOwwWnak9Bhzt\n1pIzxDL45KmlI79pVEYMO0E//gK5B8cCUoqQBXRObcek4vfRE2sfRQgymwKBgE3J\nlqIO3KltP5rmfYEWxmPAZLFYXtmZ8jywsrkV6gvLXbz4AC8mycP0L8WbbH7hW7Bn\nH6qbZm7ASFFi/snMV6AttLH9/A/6VgOuvrTKRsETZ4Tv/Pp+jcTbRQp3vWSnSNqo\ny61JQZZ0KHKrxKjBtnSOK1ufXDjHi/6PeDZHHIyxAoGBANY/rudPvR+XpIHbn3+A\nwzN4GosUfVXtcejGXySHx9pL9C3z3iz7QNLTeNouHauT6EeEnsA+cLTdaJ5hqwMx\nSH2Djd44w1513+Qpeb+nEI8GoPL4yOqm7RtaY4Ui4OLPFha+WMSOdr8kgYspJqQO\nlH1t/b/BrzGx/ByjL29xUhwY\n-----END PRIVATE KEY-----\n",
+  "client_email": "erridium-adm@erridium.iam.gserviceaccount.com",
+  "client_id": "116841329278434171038",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/erridium-adm%40erridium.iam.gserviceaccount.com"
+}

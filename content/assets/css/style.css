@@ -21,13 +21,6 @@ body{
  /* font-family: 'Lovelo'; */
 }
 
-
-
-
-
-
-
-
 .red{
   color:red;
 }
@@ -65,22 +58,10 @@ body{
 
   position: absolute;
   color:rgba(0, 0, 0, 0.5);
-  right: -10%;
+  right: -10% !important;
   bottom: 20%;
   z-index: 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 #ScrollPane{
   position:relative;
@@ -201,3 +182,7 @@ span{
   font-family: 'Lovelo';
 }
 
+.translated-video{
+  position: absolute;
+  right: 17%;
+}
