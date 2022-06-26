@@ -129,9 +129,7 @@ LOCALE_PATHS = [
     os.path.join(CONTENT_DIR, 'locale')
 ]
 
-# #storage
-# GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-#     os.path.join(BASE_DIR, 'Eridium/erridium.json')
-# )
-DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_BUCKET_NAME = 'erridium_storage'
+#storage
+# GS_CREDENTIALS = service_account.Credentials.from_service_account_file('/home/vipul/Downloads/backendo/Eridium/erridium.json')
+# DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+# GS_BUCKET_NAME = 'erridium_storage'
