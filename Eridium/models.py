@@ -43,10 +43,13 @@ class Prepload:
     def delete_files(filename, basename):
         folder_path = 'temp/audio'
         if os.path.exists(folder_path):
+            print("audio does exist as it should")
             # checking whether the folder is empty or not
             if len(os.listdir(folder_path)) == 0:
+                print("the no of file is not zero")
                 # removing the file using the os.remove() method
                 os.rmdir(folder_path)
+                print("the dir has been removed")
 
         os.remove("temp/" + filename)
         os.remove("temp/output/" + filename)

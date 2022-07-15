@@ -11,10 +11,12 @@ def upload(request):
         # if video_name.size > 2000000:
         #     return HttpResponseBadRequest()
 
-        try:
+        if not os.path.exists("temp"):
+            os.mkdir("temp")
+        if not os.path.exists("temp/audio"):
             os.mkdir('temp/audio')
-        except:
-            print("dir already exist")
+        if not os.path.exists("temp/output"):
+            os.mkdir('temp/output')
 
         storage = 'erridium_storage'
         filename = video_name.name

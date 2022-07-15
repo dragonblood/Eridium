@@ -300,9 +300,11 @@ def stitch_audio(sentences, audioDir, filename, outFile, storage_client, srtPath
     """
 
     # # Files in the audioDir should be labeled 0.wav, 1.wav, etc.
+    print("p1")
     audioFiles = storage_client.list_blobs(bucket_name, prefix=audioDir)
     audioFiles = sorted([int(f.name.split('/')[-1].split('.')[0]) for f in audioFiles])
 
+    print("p2")
     # Grab the computer-generated audio file
     bucket = storage_client.bucket(bucket_name)
 
@@ -326,6 +328,7 @@ def stitch_audio(sentences, audioDir, filename, outFile, storage_client, srtPath
     # blob = bucket.blob("videos/"+filename)
     # blob.download_to_filename(filename)
     # # file = io.BytesIO(file)
+    print("p3")
     dubbed = AudioSegment.from_file('temp/' + filename)
 
     # Place each computer-generated audio at the correct timestamp
@@ -355,10 +358,12 @@ def stitch_audio(sentences, audioDir, filename, outFile, storage_client, srtPath
         clip = CompositeVideoClip([clip, subtitles])
     outfile = 'temp'
 
+    print("is this where the problem is?")
     # clip.write_videofile(outfile, codec='libx264', audio_codec='aac')
     try:
         out = ffmpeg.output(clip, audio, "temp/output" + "dubbed" + filename, vcodec='copy', acodec='aac',
                             strict='experimental').run(capture_stdout=True, capture_stderr=True)
+        print("bo ho i did not get executed")
     except ffmpeg.Error as e:
         print('stdout:', e.stdout.decode('utf8'))
         print('stderr:', e.stderr.decode('utf8'))
